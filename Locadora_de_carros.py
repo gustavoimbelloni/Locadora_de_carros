@@ -1,69 +1,70 @@
-import os
+import streamlit as st
 
+# Lista de carros disponíveis para aluguel
 carros = [
-        ("Fiat Mobi", 50),
-        ("Renault Kwid", 60),
-        ("Citroen C3", 70),
-        ("Fiat Argo", 80),
-        ("Hyundai HB20", 90),
-        ("Renault Stepway", 100),
-        ("Chevrolet Onix", 110),
-        ("Volkswagen Polo", 120),
-        ]
+    ("Fiat Mobi", 50),
+    ("Renault Kwid", 60),
+    ("Citroen C3", 70),
+    ("Fiat Argo", 80),
+    ("Hyundai HB20", 90),
+    ("Renault Stepway", 100),
+    ("Chevrolet Onix", 110),
+    ("Volkswagen Polo", 120),
+]
 
+# Lista de carros alugados
 alugados = []
 
+# Mostrar a lista de carros
 def mostrar_lista_de_carros(lista_de_carros):
-        for i, car in enumerate(lista_de_carros):
-                print("[{}] {} -- R$ {} /dia.".format(i, car[0], car[1]))
+    for i, car in enumerate(lista_de_carros):
+        st.write(f"[{i}] {car[0]} -- R$ {car[1]} /dia.")
 
+# Título do aplicativo
+st.title("Locadora de Carros")
 
-while True:
-        os.system("cls")
-        print('==========')
-        print('Bem Vindo à locadora de carros!')
-        print('==========')
-        print('O que deseja fazer?')
-        print('0 - Mostrar portifólio | 1 - Aluguar um carro | 2 - Devolver um carro')
-        op = int(input())
+# Menu principal
+menu = st.sidebar.selectbox(
+    "Escolha uma opção",
+    ["Mostrar Portfólio", "Alugar um Carro", "Devolver um Carro"]
+)
 
-        os.system("cls")
-        if op == 0:
-                mostrar_lista_de_carros(carros)
+# Mostrar portfólio de carros
+if menu == "Mostrar Portfólio":
+    st.header("Portfólio de Carros")
+    if carros:
+        mostrar_lista_de_carros(carros)
+    else:
+        st.write("Todos os carros estão alugados no momento.")
 
-        elif op == 1:
-                mostrar_lista_de_carros(carros)
-                print("======")
-                print("Escolha o código do carro:")
-                cod_car = int(input())
-                print("Por quantos dias você deseja alugar este carro?")
-                dias = int(input())
-                os.system("cls")
+# Alugar um carro
+elif menu == "Alugar um Carro":
+    st.header("Alugar um Carro")
+    if carros:
+        mostrar_lista_de_carros(carros)
+        cod_car = st.number_input("Escolha o código do carro:", min_value=0, max_value=len(carros) - 1, step=1)
+        dias = st.number_input("Por quantos dias deseja alugar?", min_value=1, step=1)
 
-                print("Você escolheu {} por {} dias.".format(carros[cod_car][0], dias))
-                print("O aluguel totalizaria R$ {}. Deseja alugar?".format(dias * carros[cod_car][1]))
+        if st.button("Confirmar Aluguel"):
+            carro_escolhido = carros.pop(cod_car)
+            alugados.append(carro_escolhido)
+            st.success(f"Você alugou {carro_escolhido[0]} por {dias} dias. Total: R$ {carro_escolhido[1] * dias}")
+    else:
+        st.write("Não há carros disponíveis para aluguel no momento.")
 
-                print("0 - SIM | 1 - NÃO")
-                conf = int(input())
-                if conf == 0:
-                        print("Parabéns você alugou o {} por {} dias.".format(carros[cod_car][0], dias))
-                        alugados.append(carros.pop(cod_car))
+# Devolver um carro
+elif menu == "Devolver um Carro":
+    st.header("Devolver um Carro")
+    if alugados:
+        mostrar_lista_de_carros(alugados)
+        cod = st.number_input("Escolha o código do carro a ser devolvido:", min_value=0, max_value=len(alugados) - 1, step=1)
 
-        elif op == 2:
-                if len(alugados) == 0:
-                        print("Não há carros para devolver")
-                else:
-                        print("Segue a lista de carros alugados. Qual você desejaria devolver?")
-                        mostrar_lista_de_carros(alugados)
-                        print("")
-                        print("Escolha o código do carro que deseja devolver:")
-                        cod = int(input())
-                        if conf == 0:
-                                print("Obrigado por devolver o carro {}".format(alugados[cod][0]))
-                                carros.append(alugados.pop(cod))
+        if st.button("Confirmar Devolução"):
+            carro_devolvido = alugados.pop(cod)
+            carros.append(carro_devolvido)
+            st.success(f"Você devolveu o carro {carro_devolvido[0]}. Obrigado!")
+    else:
+        st.write("Não há carros para devolver no momento.")
 
-        print("")
-        print("=======")
-        print("0 para CONTINUAR | 1 para SAIR")
-        if float(input()) == 1:
-                break
+# Nota final
+st.sidebar.write("Obrigado por usar a Locadora de Carros!")
